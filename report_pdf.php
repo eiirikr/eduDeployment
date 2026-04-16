@@ -10276,9 +10276,9 @@ $LANDEDCOST = ($totAVT + $TAXAMT3 + $DV_backpage + $CUD_AMOUNT + $BANKCHARGE + $
 		$this->SetFont('Arial','B',9);
 		$this->Write(0, 'TOTAL VAT PH');
 
+
 		if (isset($vat) && !empty($vat)) {
-			//$TotalVat = $vat; check why iba ung $vat;
-			$TotalVat = round(($LANDEDCOST*0.12), 2);
+			$TotalVat = $vat;
 		}elseif (isset($vat)) {
 			if ($data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] != 'S') {
 				$TotalVat = round(($LANDEDCOST*0.12), 2);
@@ -10296,7 +10296,7 @@ $LANDEDCOST = ($totAVT + $TAXAMT3 + $DV_backpage + $CUD_AMOUNT + $BANKCHARGE + $
 		if ($data['FIN_data']['MDec'] == 'IED') {
 			$TotalVat = 0;
 		}
-
+		
 		$this->VAT_C = $TotalVat;
 		
 		/*$TAXExciseTotal = !empty($data['FIN_others']['ExciseTotal']) ? $data['FIN_others']['ExciseTotal'] :" ";
@@ -10741,13 +10741,13 @@ $LANDEDCOST = ($totAVT + $TAXAMT3 + $DV_backpage + $CUD_AMOUNT + $BANKCHARGE + $
 			//$avttax1 = $totAVT * 0.12;
 			$sumAVTVAT = $avttax1 + $TAXAMT222;
 			//$TAXAMT2 = number_format($sumAVTVAT, 2);
-			$TAXAMT2 = round(($LANDEDCOST*0.12), 2);
+			$TAXAMT2 = number_format($TAXAMT222, 2);
 
 		}else{
 			if ($TAXAMT2 == NULL) {
 				$TAXAMT2 = NULL;
 			}else{
-				$TAXAMT2 = round(($LANDEDCOST*0.12), 2);
+				$TAXAMT2 = number_format($TAXAMT2, 2);
 			}
 		}
 
@@ -10878,7 +10878,13 @@ $LANDEDCOST = ($totAVT + $TAXAMT3 + $DV_backpage + $CUD_AMOUNT + $BANKCHARGE + $
 
 		
 		/* Start Total Item Tax */
-		$ITAX1 = round(($LANDEDCOST*0.12), 2); // jjavier
+		if ($data['FIN_data']['MDec'] == '8ZN') {
+			$ITAX1 = str_replace(',', '', $TAXAMT1) + str_replace(',', '', $TAXAMT2) + str_replace(',', '', $TAXAMT3) + str_replace(',', '', $TAXAMT4) + str_replace(',', '', $TAXAMT5) + str_replace(',', '', $TAXAMT6) + str_replace(',', '', $TAXAMT7) + str_replace(',', '', $total_excise);
+		}elseif ($TAXAMT4 != "" && $TAXAMT4 != 0.00){
+			$ITAX1 = str_replace(',', '', $TAXAMT1) + str_replace(',', '', $TAXAMT2) + str_replace(',', '', $TAXAMT3) + str_replace(',', '', $TAXAMT4) + str_replace(',', '', $TAXAMT5) + str_replace(',', '', $TAXAMT6) + str_replace(',', '', $TAXAMT7);
+		}else{
+			$ITAX1 = str_replace(',', '', $TAXAMT1) + str_replace(',', '', $TAXAMT2) + str_replace(',', '', $TAXAMT3) + str_replace(',', '', $TAXAMT4) + str_replace(',', '', $TAXAMT5) + str_replace(',', '', $TAXAMT6) + str_replace(',', '', $TAXAMT7) + str_replace(',', '', $total_excise);
+		}
 		//print_r("test"); die();
 		$this->SetXY(147, 231);
 		$this->SetFont('Arial','B',9);
@@ -10889,27 +10895,6 @@ $LANDEDCOST = ($totAVT + $TAXAMT3 + $DV_backpage + $CUD_AMOUNT + $BANKCHARGE + $
 		$this->Cell(60,4,number_format($ITAX1, 2),0,0,'R');
 
 		/* End Total Item Tax */
-		
-		/* Start IPC */
-		if ($TAXAMT18 == NULL) {
-			$TAXAMT18 = NULL;
-		}else{
-			$TAXAMT18 = number_format($TAXAMT18, 2);
-		}
-		//05162024:SPagara: For Transshipments
-		if (($data['FIN_data']['MDec'] == '8ZN') || ($data['FIN_data']['MDec'] == '8PP') || ($data['FIN_data']['MDec'] == '8PE') || ($data['FIN_data']['MDec'] == '8ZE')){
-			$TAXCODE18 = "IPC";
-			$TAXAMT18 = 250;
-		}
-		$this->SetXY(147, 237);
-		$this->SetFont('Arial','B',9);
-		$this->Write(0, $TAXCODE18);
-
-		$this->SetXY(147, 235);
-		$this->SetFont('Arial','B',9);
-		$this->Cell(60,4,$TAXAMT18,0,0,'R');
-
-		/* End IPC */
 
 		/* Start IPF */
 		if (($data['FIN_data']['MDec'] != '8ZN' && $data['FIN_data']['MDec'] != '8PP') && ($data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S')) {
@@ -11090,42 +11075,67 @@ $LANDEDCOST = ($totAVT + $TAXAMT3 + $DV_backpage + $CUD_AMOUNT + $BANKCHARGE + $
 
 		/* End CSF */
 
+		/* Start IPC */
+		if ($TAXAMT18 == NULL) {
+			$TAXAMT18 = NULL;
+		}else{
+			$TAXAMT18 = number_format($TAXAMT18, 2);
+		}
+		//05162024:SPagara: For Transshipments
+		if (($data['FIN_data']['MDec'] == '8ZN') || ($data['FIN_data']['MDec'] == '8PP') || ($data['FIN_data']['MDec'] == '8PE') || ($data['FIN_data']['MDec'] == '8ZE')){
+			$TAXCODE18 = "IPC";
+			$TAXAMT18 = 250;
+		}
+		$this->SetXY(147, 256);
+		$this->SetFont('Arial','B',9);
+		$this->Write(0, $TAXCODE18);
+
+		$this->SetXY(147, 254);
+		$this->SetFont('Arial','B',9);
+		$this->Cell(60,4,$TAXAMT18,0,0,'R');
+
+		/* End IPC */
+
 		/* Start CDS */
-		if ($data['FIN_data']['MDec'] != 'IES' && ($data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S')) {
-			// if (($data['FIN_data']['MDec'] != 'IES' && ($data['FIN_data']['MDec'] != 'IE' && $data['FIN_data']['Mdec2'] != '4')) && ($data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S')) {
-			if ($data['FIN_data']['MDec'] != 'IES' && $data['FIN_data']['MDec'] != 'IE') {
-				//06062024: SPagara: update 
+		//if ($data['FIN_data']['MDec'] != 'IES' && $data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S') {
+		if ($data['FIN_data']['MDec'] != 'IES' && $data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S') {
+		// if (($data['FIN_data']['MDec'] != 'IES' && ($data['FIN_data']['MDec'] != 'IE' && $data['FIN_data']['Mdec2'] != '4')) && ($data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S')) {
+			if ($data['FIN_data']['MDec'] != 'IES' && $data['FIN_data']['MDec'] != 'IE'){
+		//SPagara: 08072023: Update on charges
+		//05132024: SPagara: update 
+			$TAXCODE16 = "CDS";
+			//$TAXAMT16 = "250.00";
+			//$TAXAMT16 = "280.00";
+			$TAXAMT16 = "100.00";
+			}elseif ($data['FIN_data']['MDec'] = 'IED') {
 				$TAXCODE16 = "CDS";
 				//$TAXAMT16 = "250.00";
-				//$TAXAMT16 = "280.00";
 				$TAXAMT16 = "100.00";
-			} elseif ($data['FIN_data']['MDec'] = 'IED') {
-				$TAXCODE16 = "CDS";
-				//$TAXAMT16 = "250.00";
-				$TAXAMT16 = "100.00";
-			} else {
+			}else
+			{
 				$TAXCODE16 = "CDS";
 				$TAXAMT16 = "0.00";
 			}
-		} elseif ($data['FIN_data']['MDec'] == 'IES') {
+		}elseif ($data['FIN_data']['MDec'] == 'IES'){
 			$TAXCODE16 = "CDS";
 			$TAXAMT16 = "100.00";
-		} else {
+		}else{
 			if ($TAXAMT16 == NULL) {
 				$TAXCODE16 = "CDS";
 				$TAXAMT16 = "100.00";
-			} else {
-				$TAXAMT16 = number_format($TAXAMT16, 2);
+			}else{
+				//$TAXAMT16 = number_format($TAXAMT16, 2);
+				$TAXAMT16 = number_format($TAXAMT16/$data['max_rows'], 2);
 			}
 		}
 
-		$this->SetXY(147, 259);
-		$this->SetFont('Arial', 'B', 9);
+		$this->SetXY(147, 260);
+		$this->SetFont('Arial','B',9);
 		$this->Write(0, $TAXCODE16);
 
-		$this->SetXY(147, 257);
-		$this->SetFont('Arial', 'B', 9);
-		$this->Cell(60, 4, $TAXAMT16, 0, 0, 'R');
+		$this->SetXY(147, 258);
+		$this->SetFont('Arial','B',9);
+		$this->Cell(60,4,$TAXAMT16,0,0,'R');
 
 		/* End CDS */
 
@@ -11152,26 +11162,27 @@ $LANDEDCOST = ($totAVT + $TAXAMT3 + $DV_backpage + $CUD_AMOUNT + $BANKCHARGE + $
 
 		/* End IRS */
 
-		/* Start Total GLOBAL Tax */
+		/* Start Total GLOBAL Tax 
+		str_replace(',', '', $TAXAMT9) + */
 		$GTAX1 = str_replace(',', '', $TAXAMT8) + str_replace(',', '', $TAXAMT9) + str_replace(',', '', $TAXAMT10) + str_replace(',', '', $TAXAMT11) + str_replace(',', '', $TAXAMT12) + str_replace(',', '', $TAXAMT13) + str_replace(',', '', $TAXAMT14) + str_replace(',', '', $TAXAMT15) + str_replace(',', '', $TAXAMT16) + str_replace(',', '', $TAXAMT17) + str_replace(',', '', $TAXAMT18) + str_replace(',', '', $TAXAMT19);
 
 		$this->SetXY(147, 265);
-		$this->SetFont('Arial','B',9);
-		$this->Cell(60,4,'Total Global Tax','B',0,'L');
+		$this->SetFont('Arial', 'B', 9);
+		$this->Cell(60, 4, 'Total Global Tax', 'B', 0, 'L');
 
 		$this->SetXY(147, 265);
-		$this->SetFont('Arial','B',9);
-		$this->Cell(60,4,number_format($GTAX1, 2),0,0,'R');
+		$this->SetFont('Arial', 'B', 9);
+		$this->Cell(60, 4, number_format($GTAX1, 2), 0, 0, 'R');
 
 		/* End Total GLOBAL Tax */
 
 		/* Start Total Tax */
-		
+
 		$TTAX1 = $ITAX1 + $GTAX1;
-		
-		$this->SetXY(147, 269);
-		$this->SetFont('Arial','B',9);
-		$this->Cell(60,4,number_format($TTAX1, 2),0,0,'R');
+
+		$this->SetXY(147, 270);
+		$this->SetFont('Arial', 'B', 9);
+		$this->Cell(60, 4, number_format($TTAX1, 2), 0, 0, 'R');
 
 		/* End Total Tax */
 
