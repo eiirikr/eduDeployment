@@ -10889,27 +10889,6 @@ $LANDEDCOST = ($totAVT + $TAXAMT3 + $DV_backpage + $CUD_AMOUNT + $BANKCHARGE + $
 		$this->Cell(60,4,number_format($ITAX1, 2),0,0,'R');
 
 		/* End Total Item Tax */
-		
-		/* Start IPC */
-		if ($TAXAMT18 == NULL) {
-			$TAXAMT18 = NULL;
-		}else{
-			$TAXAMT18 = number_format($TAXAMT18, 2);
-		}
-		//05162024:SPagara: For Transshipments
-		if (($data['FIN_data']['MDec'] == '8ZN') || ($data['FIN_data']['MDec'] == '8PP') || ($data['FIN_data']['MDec'] == '8PE') || ($data['FIN_data']['MDec'] == '8ZE')){
-			$TAXCODE18 = "IPC";
-			$TAXAMT18 = 250;
-		}
-		$this->SetXY(147, 237);
-		$this->SetFont('Arial','B',9);
-		$this->Write(0, $TAXCODE18);
-
-		$this->SetXY(147, 235);
-		$this->SetFont('Arial','B',9);
-		$this->Cell(60,4,$TAXAMT18,0,0,'R');
-
-		/* End IPC */
 
 		/* Start IPF */
 		if (($data['FIN_data']['MDec'] != '8ZN' && $data['FIN_data']['MDec'] != '8PP') && ($data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S')) {
@@ -11090,42 +11069,67 @@ $LANDEDCOST = ($totAVT + $TAXAMT3 + $DV_backpage + $CUD_AMOUNT + $BANKCHARGE + $
 
 		/* End CSF */
 
+		/* Start IPC */
+		if ($TAXAMT18 == NULL) {
+			$TAXAMT18 = NULL;
+		}else{
+			$TAXAMT18 = number_format($TAXAMT18, 2);
+		}
+		//05162024:SPagara: For Transshipments
+		if (($data['FIN_data']['MDec'] == '8ZN') || ($data['FIN_data']['MDec'] == '8PP') || ($data['FIN_data']['MDec'] == '8PE') || ($data['FIN_data']['MDec'] == '8ZE')){
+			$TAXCODE18 = "IPC";
+			$TAXAMT18 = 250;
+		}
+		$this->SetXY(147, 256);
+		$this->SetFont('Arial','B',9);
+		$this->Write(0, $TAXCODE18);
+
+		$this->SetXY(147, 254);
+		$this->SetFont('Arial','B',9);
+		$this->Cell(60,4,$TAXAMT18,0,0,'R');
+
+		/* End IPC */
+
 		/* Start CDS */
-		if ($data['FIN_data']['MDec'] != 'IES' && ($data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S')) {
-			// if (($data['FIN_data']['MDec'] != 'IES' && ($data['FIN_data']['MDec'] != 'IE' && $data['FIN_data']['Mdec2'] != '4')) && ($data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S')) {
-			if ($data['FIN_data']['MDec'] != 'IES' && $data['FIN_data']['MDec'] != 'IE') {
-				//06062024: SPagara: update 
+		/* Start CDS */
+		//if ($data['FIN_data']['MDec'] != 'IES' && $data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S') {
+		if ($data['FIN_data']['MDec'] != 'IES' && $data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S') {
+		// if (($data['FIN_data']['MDec'] != 'IES' && ($data['FIN_data']['MDec'] != 'IE' && $data['FIN_data']['Mdec2'] != '4')) && ($data['FIN_data']['Stat'] == 'C' || $data['FIN_data']['Stat'] == 'S')) {
+			if ($data['FIN_data']['MDec'] != 'IES' && $data['FIN_data']['MDec'] != 'IE'){
+		//SPagara: 08072023: Update on charges
+		//05132024: SPagara: update 
+			$TAXCODE16 = "CDS";
+			//$TAXAMT16 = "250.00";
+			//$TAXAMT16 = "280.00";
+			$TAXAMT16 = "100.00";
+			}elseif ($data['FIN_data']['MDec'] = 'IED') {
 				$TAXCODE16 = "CDS";
 				//$TAXAMT16 = "250.00";
-				//$TAXAMT16 = "280.00";
 				$TAXAMT16 = "100.00";
-			} elseif ($data['FIN_data']['MDec'] = 'IED') {
-				$TAXCODE16 = "CDS";
-				//$TAXAMT16 = "250.00";
-				$TAXAMT16 = "100.00";
-			} else {
+			}else
+			{
 				$TAXCODE16 = "CDS";
 				$TAXAMT16 = "0.00";
 			}
-		} elseif ($data['FIN_data']['MDec'] == 'IES') {
+		}elseif ($data['FIN_data']['MDec'] == 'IES'){
 			$TAXCODE16 = "CDS";
 			$TAXAMT16 = "100.00";
-		} else {
+		}else{
 			if ($TAXAMT16 == NULL) {
-				$TAXCODE16 = "CDS";
-				$TAXAMT16 = "100.00";
-			} else {
-				$TAXAMT16 = number_format($TAXAMT16, 2);
+				$TAXAMT16 = NULL;
+			}else{
+				//$TAXAMT16 = number_format($TAXAMT16, 2);
+				$TAXAMT16 = number_format($TAXAMT16/$data['max_rows'], 2);
 			}
 		}
 
 		$this->SetXY(147, 259);
-		$this->SetFont('Arial', 'B', 9);
+		$this->SetFont('Arial','B',9);
 		$this->Write(0, $TAXCODE16);
 
 		$this->SetXY(147, 257);
-		$this->SetFont('Arial', 'B', 9);
-		$this->Cell(60, 4, $TAXAMT16, 0, 0, 'R');
+		$this->SetFont('Arial','B',9);
+		$this->Cell(60,4,$TAXAMT16,0,0,'R');
 
 		/* End CDS */
 
@@ -11135,8 +11139,7 @@ $LANDEDCOST = ($totAVT + $TAXAMT3 + $DV_backpage + $CUD_AMOUNT + $BANKCHARGE + $
 			$TAXAMT17 = "30.00";
 		}else{
 			if ($TAXAMT17 == NULL) {
-				$TAXCODE17 = "IRS";
-				$TAXAMT17 = "30.00";
+				$TAXAMT17 = NULL;
 			}else{
 				$TAXAMT17 = number_format($TAXAMT17, 2);
 			}
